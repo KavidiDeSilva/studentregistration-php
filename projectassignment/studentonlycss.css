@@ -1,0 +1,106 @@
+
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+
+/*basic reset*/
+* {margin: 0; padding: 0;
+    font-family: montserrat, arial, verdana;}
+
+html {
+	height: 100%;
+	
+}
+
+
+body {
+	/*Image only BG fallback*/
+		/*background = gradient + image pattern combo*/
+    background:  linear-gradient(rgba(196, 102, 0, 0.6), rgba(155, 89, 182, 0.6));
+  text-align: center;
+  font-family: montserrat, arial, verdana;
+}
+
+
+.form-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.form-container input[type=text]{
+  width: 90%;
+  margin: 20px auto;
+  border: 1px solid white;
+  -webkit-box-shadow: 0  0 1px 1px white;
+          box-shadow: 0  0 1px 1px white;
+}
+.button {text-decoration: none;
+		/*background-color: #4CAF50;  Green */
+		text-align: center;
+		font-size: 16px;
+		color: white;
+		border: none;
+		cursor: pointer;
+		border-radius: 8px;
+		padding: 10px 24px;
+		margin: 4px 2px;
+		display: inline-block;
+		-webkit-transition-duration: 0.4s; /* Safari */
+    	transition-duration: 0.4s;
+}
+.button:hover {
+  opacity: 0.6;
+    color: w;
+	box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+	
+}
+.form-container .panel {
+	background-color: currentColor;
+  background: rgba(0, 0, 0, 0.2);
+}
+.form-container .panel .panel-heading {
+  margin-bottom: 20px;
+}
+
+.form-container .back {
+  float: left;
+}
+.form-container .continue {
+  float: right;
+}
+/* Multi-Part CSS */
+input[type=checkbox] {
+  position: absolute;
+  /* Position the checkbox in upper left corner */
+  opacity: 0;
+}
+
+/* Styling Parts */
+#part1,
+#part2 {
+  z-index: 2;
+  display: block;
+  height: auto;
+  opacity: 1;
+  -webkit-transition: opacity 1s ease-in-out;
+  transition: opacity 1s ease-in-out;
+}
+
+/* Hidden Parts */
+#part2{
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Show Step 2 & Hide Step 1 */
+#step2:checked ~ #part2 {
+  opacity: 1;
+  height: auto;
+}
+
+#step2:checked ~ #part1 {
+  opacity: 0;
+  height: 0;
+  display: none;
+}
+
+

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+	  <meta charset="UTF-8">
+	<title>Student Registration Form</title>
+	 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" />
+ 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="studentwithb4.css"/>
+	<script type="text/javascript">
+		
+		window.addEventListener("load",initialize); 
+		
+		//INITIALIZING FUNCTIONS
+		function initialize() {
+			ajax=new XMLHttpRequest();
+			students=new Array();
+			//binding
+			//validation
+			regex= new Object();
+			regex.name= new RegExp("^[a-zA-Z]+$");
+			regex.mobile=new RegExp("^(^077|^071|^076)([0-9]{7})$");
+			regex.bitreg=new RegExp("^([rR][0-9]{6})$");
+			
+			//authorization(btn disable kranawa nm)
+			user= new Object();
+			user.privilages= new Object();
+			user.privilages.studentSubmit= true;
+			user.privilages.studentClear= true;
+			user.privilages.studentUpdate=true;
+			user.privilages.studentDelete=true;
+			user.privilages.studentSearch=true;
+
+			
+			btnSubmit.addEventListener('click',btnSubmitMC);
+			btnClear.addEventListener('click',btnClearMC);
+			btnUpdate.addEventListener('click',btnUpdateMC);
+			btnDelete.addEventListener('click',btnDeleteMC);
+			btnSearch.addEventListener("click", btnSearchMC);
+			btnSearchClear.addEventListener("click", btnSearchClearMC);
+
+			
+			txtname.addEventListener('keyup',txtNameKU);
+			txtmobile.addEventListener('keyup',txtMobileKU);
+			txtbitreg.addEventListener('keyup',txtBITRegKU);
+			
+			btnRealSearch.addEventListener("click", btnRealSearchLoadMC);
+			btnRealSearchClear.addEventListener("click", btnRealSearchClearMC);
+
+			loadForm();
+			loadTable();
+			}
+		
+		function loadForm(){
+			student= new Object();
+			students= new Array();
+			oldstudent= null;
+			
+			valid="lightgreen";
+			invalid="pink";
+			initial="white";
+			updated="#DBFF33";
+			
+			txtname.value="";
+			txtmobile.value="";
+			txtbitreg.value="";
+
+			disableButtons(false,true,true);
+			setDefaultColor(initial);
+			
+			}
+		
+		function disableButtons(add, upd, del){
+				
+			if(!user.privilages.studentSubmit|| add )
+				btnSubmit.setAttribute("disabled","disabled");
+			else btnSubmit.removeAttribute("disabled");
+				  
+					 
+			if(!user.privilages.studentUpdate || upd )
+				btnUpdate.setAttribute("disabled","disabled");
+			else btnUpdate.removeAttribute("disabled");
+
+				
+			if(!user.privilages.studentDelete || del )
+				btnDelete.setAttribute("disabled","disabled");
+			else btnDelete.removeAttribute("disabled");
+			}
+
+		function loadTable(){
+			httpSearchRequest("getall");
+			}
+		
+		function setDefaultColor(style){
+			txtname.style.backgroundColor=style;
+			txtmobile.style.backgroundColor=style;
+			txtbitreg.style.backgroundColor=style;
+			}
+
+		function fillTable(isValid){
+				tblstudent.lastElementChild.innerHTML="";
+				for (index in students){
+					tr=document.createElement("tr");
+
+					td1=document.createElement("td");
+					tx1=document.createTextNode(window.parseInt(index)+1);
+					td1.appendChild(tx1);
+					tr.appendChild(td1);
+
+					td2=document.createElement("td");
+					tx2=document.createTextNode(students[index].name);
+					td2.appendChild(tx2);
+					tr.appendChild(td2);
+
+					td3=document.createElement("td");
+					tx3=document.createTextNode(students[index].mobile);
+					td3.appendChild(tx3);
+					tr.appendChild(td3);
+
+					td4=document.createElement("td");
+					tx4=document.createTextNode(students[index].bitreg);
+					td4.appendChild(tx4);
+					tr.appendChild(td4);
+
+					td5=document.createElement("td");
+					btn=document.createElement("input");
+					btn.setAttribute("class","btn btn-default btn-sm");
+					btn.setAttribute("type","button");
+					btn.setAttribute("value","Delete");
+					td5.appendChild(btn);
+					tr.appendChild(td5);
+
+					tr.addEventListener("click",function(){
+					idx=window.parseInt(this.firstChild.innerHTML);
+					fillForm(students[idx-1]);});
+
+					if(isValid(students[index]))
+					tblstudent.lastElementChild.appendChild(tr);
+					}
+				}
+
+		function fillForm(stu){
+			//window.alert(student.id);
+			student=JSON.parse(JSON.stringify(stu));
+			oldstudent=JSON.parse(JSON.stringify(stu));
+			txtname.value=student.name;
+			txtmobile.value=student.mobile;
+			txtbitreg.value=student.bitreg;
+			
+			disableButtons(true,false,false);
+			setDefaultColor(valid); 
+
+			}
+
+
+		function btnRealSearchLoadMC(){}
+	
+		function btnRealSearchClearMC(){
+			fillTable(function(student){return true;});
+			txtRealSearchName.value="";
+			txtRealSearchMobile.value="";
+			txtRealSearchbitreg.value="";
+			}
+
+		function filterTable(x){
+			//window.alert(x);
+			var name = txtRealSearchName.value.trim(); 
+			var mobile = txtRealSearchMobile.value.trim();	
+			var bitreg= txtSearchbitreg.value.trim();
+
+			var sname=name != "";
+			var smobile=mobile != "";
+			var sbitreg=bitreg !="";
+					//if(column=="name"&&	//employees[index].name.substring(0,x.length).toLowerCase()==x.toLowerCase())	
+					//tblEmployee.lastElementChild.appendChild(tr);
+							
+					//if(employees[index][column].substring(0,x.length).toLowerCase()==x.toLowerCase())	
+					//tblEmployee.lastElementChild.appendChild(tr);
+			if(sname && !smobile && !sbitreg)
+			 fillTable(function(student){
+				return student.name.substring(0,name.length).toLowerCase()==name.toLowerCase();
+				});
+				
+			if(!sname && smobile && !sbitreg)
+				fillTable(function(student){
+				return student.mobile.substring(0,mobile.length).toLowerCase()==mobile.toLowerCase();
+				});	
+
+			if(!sname && !smobile && sbitreg)
+			 fillTable(function(student){
+				return student.bitreg.substring(0,bitreg.length).toLowerCase()==bitreg.toLowerCase();
+				});
+				
+			if(sname && smobile && !sbitreg)
+				fillTable(function(student){ 	return (student.name.substring(0,name.length).toLowerCase()==name.toLowerCase()) &&(student.mobile.substring(0,mobile.length).toLowerCase()==mobile.toLowerCase());
+				});	
+
+			if(sname && !smobile && sbitreg)
+			 	fillTable(function(student){
+				return (student.name.substring(0,name.length).toLowerCase()==name.toLowerCase()) && (student.bitreg.substring(0,bitreg.length).toLowerCase()==bitreg.toLowerCase());
+				});
+				
+			if(!sname && smobile && sbitreg)
+				fillTable(function(student){
+				return (student.mobile.substring(0,mobile.length).toLowerCase()==mobile.toLowerCase()) && (student.bitreg.substring(0,bitreg.length).toLowerCase()==bitreg.toLowerCase());
+				});							
+									
+			if(sname && smobile && sbitreg)
+				fillTable(function(student){	return (student.name.substring(0,name.length).toLowerCase()==name.toLowerCase())&&(student.nic.substring(0,nic.length).toLowerCase()==nic.toLowerCase()) && (student.bitreg.substring(0,bitreg.length).toLowerCase()==bitreg.toLowerCase());			
+			});	
+				
+			}
+	
+		
+		//VALIDATIONS AND DATA BINDING
+
+		function txtNameKU(){
+			if(regex.name.test(txtname.value)){
+				student.name=txtname.value;
+				if(oldstudent!=null && oldstudent.name!=student.name)
+					txtname.style.background=updated;
+				else txtname.style.backgroundColor=valid;
+				
+				}
+			else {txtname.style.backgroundColor=invalid;
+				student.name=null;
+				}
+			}
+		
+		function txtMobileKU(){
+			if(regex.mobile.test(txtmobile.value)){
+				student.mobile=txtmobile.value;
+				if(oldstudent!=null && oldstudent.mobile!=student.mobile)
+					txtmobile.style.background=updated;
+				else txtmobile.style.backgroundColor=valid;
+				
+				}
+			else {txtmobile.style.backgroundColor=invalid;
+				student.mobile=null;
+				}
+			}
+		
+		function txtBITRegKU(){
+			if(regex.bitreg.test(txtbitreg.value)){
+				student.bitreg=txtbitreg.value;
+				if(oldstudent!=null && oldstudent.bitreg!=student.bitreg)
+					txtbitreg.style.background=updated;
+				else
+				txtbitreg.style.backgroundColor=valid;
+				
+				}
+			else {txtbitreg.style.backgroundColor=invalid;
+				student.bitreg=null;
+				}
+			}
+		
+		
+		//OPERATION FUNCTIONS
+		//---------Add-----------
+		function btnSubmitMC(){
+			var errors = getErrors(); 
+			if(errors==""){ 
+			var op=window.confirm("Are you sure to add following Student? \n\n Name: "+student.name + "\nMobile: "+student.mobile + "\nBIT Registration No: "+student.bitreg);
+				if(op==true){httpModifyRequest("add");}
+				}
+				else 
+				window.alert("You have following Errors\n\n"+errors); 
+
+				}
+										
+		function getErrors(){
+			var errors = ""; 
+
+			if(  student.name == null ) 
+				errors = errors + "\nName is incorrect"; 
+			
+			if( student.mobile == null ) 
+				errors = errors + "\nMobile No is incorrect"; 
+
+			if(  student.bitreg == null ) 
+				errors = errors + "\nBIT Registration No is incorrect"; 
+			return errors; 
+			} 
+
+		//--------Update--------
+		function btnUpdateMC(){
+			var errors = getErrors(); 
+			if(errors==""){	
+			var updates = getUpdates(); 
+			if(updates=="") window.alert("Nothing Updated!"); 
+			else { 
+			var op = window.confirm("\n\nAre your sure to update followings ! \n\n"+updates);
+			if(op==true){httpModifyRequest("update"); } } } 
+				else 
+					window.alert("You have some errors in your form");
+			}
+
+		function getUpdates(){
+			var updates = ""; 
+
+			if( student.name !=oldstudent.name ) 
+			updates = updates + "\nName is changed"; 
+
+			if( student.mobile !=oldstudent.mobile ) 
+			updates = updates + "\nMobile is changed"; 
+
+			if( student.bitreg !=oldstudent.bitreg ) 
+			updates = updates + "\nBIT Registration No is changed"; 
+
+
+			return updates; 	
+
+			}	
+
+		//--------Clear---------
+		function btnClearMC(){
+			var op = window.confirm("Do you need to clear the Form?"); 
+			if(op==true)
+			loadForm();
+			}
+
+		//-------Delete---------
+		function btnDeleteMC(){
+			updates=getUpdates();
+			if(updates!="")
+				window.alert("\n\n You have unsaved updates!")
+			else{
+			var op=window.confirm("\n\nAre u sure to Delete ! \n\n"+student.name);
+				if(op==true){{httpModifyRequest("delete"); 	}}
+					
+			}
+		}
+		//-------Search---------
+		function btnSearchMC(){
+			var search = "";
+			var name = txtSearchName.value; 
+			var mobile = txtSearchMobile.value;
+			var bitreg=txtSearchbitreg.value;
+
+			var sname = regex.name.test(name);
+			var smobile = regex.mobile.test(mobile);	
+			var sbitreg=regex.bitreg.test(bitreg);
+
+			if( sname && !smobile && !sbitreg )
+				search = "getallbyname&name="+name;
+
+			if( !sname && smobile && !sbitreg ) 
+				search = "getallbymobile&mobile="+mobile;
+
+			if( !sname && !smobile && sbitreg )
+				search = "getallbybitreg&bitreg="+bitreg;
+
+			if( sname && smobile && !sbitreg ) 
+				search = "getallbynameandmob&name="+name+"&mobile="+mobile;
+
+			if( sname && !smobile && sbitreg )
+				search = "getallbynameandbitreg&name="+name+"&bitreg="+bitreg;
+
+			if( !sname && smobile && sbitreg ) 
+				search = "getallbymobandbitreg&mobile="+mobile+"&bitreg="+bitreg;
+
+			if( sname && smobile && sbitreg ) 
+				search = "getallbynameandmobandbitreg&name="+name+"&mobile="+mobile+"&bitreg="+bitreg;	
+
+				 
+			httpSearchRequest(search);
+			}
+
+		function btnSearchClearMC(){
+				txtSearchName.value=""; 
+				txtSearchMobile.value=""; 
+				txtSearchbitreg.value=""; 
+				loadTable();	
+				}
+
+		//-------Modify-----------
+		function httpModifyRequest(operation){
+			var json = JSON.stringify(student); 
+			ajax.onreadystatechange = 
+			        function(){//err.innerHTML=ajax.responseText;
+				               if(ajax.readyState==4){ 	                     
+				                if(ajax.status==200)
+								  if(ajax.responseText==1)
+				                     {window.alert("Successfully "+operation+"ed");
+										loadForm(); 
+										loadTable(); 
+									 }
+								 else
+								 window.alert("Failed to "+operation+" as "+ajax.responseText); 
+				                    else 
+										window.alert("Could not contact the Server");   }     };
+
+			ajax.open("GET","studentcontroller.php?op="+operation+"&student="+json,true); 
+			ajax.send(); 
+			}
+				
+		function httpSearchRequest(query){
+				ajax.onreadystatechange = 
+			        function(){//err.innerHTML=ajax.responseText;				   
+				               if(ajax.readyState==4 && ajax.status==200){students=JSON.parse(ajax.responseText); fillTable(function(student){return true;});
+							   }
+				};
+				ajax.open("GET","studentcontroller.php?op="+query,true);
+				ajax.send();
+				}
+
+	</script>
+</head>
+<body>
+<!--fixed block button-->
+	<div class="container-fluid ">
+		 <!-- Button to Open the Modal -->
+	 		 <button type="button" style="float: left; position: absolute; top: 1px; " class="btn btn-primary action-button btn-block" data-toggle="modal" data-target="#myModal">Search<span class="glyphicon glyphicon-search"></span>
+	 		 </button>
+   				 	<!-- The Modal -->
+				  <div class="modal fade" id="myModal">
+				    <div class="modal-dialog  modal-dialog-centered ">
+				      <div class="modal-content">
+				      
+				        <!-- Modal Header -->
+				        <div class="modal-header">
+				          <button type="button" class="close" aria-label="Close" data-dismiss="modal">&times;</button>
+				        </div>
+				        
+				        <!-- Modal body -->
+				        <div class="modal-body">
+				         		<label for="txtSearchName" class="fs-subtitle">Search By Name:</label>
+								<input type="text" id="txtSearchName" placeholder="Search Name here" />
+
+								<label for="txtSearchMobile" class="fs-subtitle">Search By Mobile:</label>
+								<input type="text" id="txtSearchMobile" placeholder="Search Mobile here" />
+
+								<label for="txtSearchbitreg" class="fs-subtitle">Search By BIT Registration No:</label>
+								<input type="text" id="txtSearchbitreg" placeholder="Search BIT Registration No here" />
+
+								<button type="button" id="btnSearch"  class="btn-info action-button">Search<span class="glyphicon glyphicon-search">
+								</button>
+
+								<button type="button" id="btnSearchClear"  class=" btn-info action-button" >Clear Search
+								</button>
+				        </div>
+				        
+				        <!-- Modal footer -->
+				        <div class="modal-footer">
+				          <button type="button" class="btn-danger action-button" data-dismiss="modal">Close
+				          </button>
+				        </div>
+				        
+				      </div>
+				    </div>
+				  </div>
+
+				</div>
+
+ <!-- multistep form -->
+<div id="msform">
+	
+  <!-- fieldsets -->
+	<fieldset style="width: 80%">
+		
+		<h3  class="fs-title">Student Registration Form</h3>
+		
+		<label for="txtname" class="fs-subtitle">Name:</label>
+		<input type="text" id="txtname" placeholder="Type Name here">
+	
+		<label for="txtmobile" class="fs-subtitle">Mobile:</label>
+		<input type="text" id="txtmobile" placeholder="Type Mobile here">
+	
+		<label for="txtbitreg" class="fs-subtitle">BIT Reg No:</label>
+		<input type="text" id="txtbitreg" placeholder="Type BIT Reg No here">
+	
+		<button type="submit" id="btnSubmit" class="btn btn-success submit action-button">
+			Submit<span class="glyphicon glyphicon-plus"></span>
+		</button>
+
+		<button type="button" id="btnUpdate" class=" btn btn-warning action-button">
+			Update<span class="glyphicon glyphicon-refresh"></span>
+		</button>
+
+		<button type="reset" id="btnClear" class="btn btn-info action-button">
+			Clear<span class="glyphicon glyphicon-scissors"></span>
+		</button>
+
+		<button type="button" id="btnDelete" class="btn btn-danger submit action-button">
+			Delete<span class="glyphicon glyphicon-trash"></span>
+		</button>
+
+		<button type="button" class="btn btn-primary next action-button">
+			Next<span class="glyphicon glyphicon-chevron-right"></span>
+		</button>
+		
+			<span id="err"></span>
+		</fieldset>
+
+	<fieldset style="width: 80%">
+		    <button type="button" class="btn-primary previous action-button" style="float: left; position: absolute; top: 1px; left:4px;">
+				<span class="glyphicon glyphicon-chevron-left"></span>Back
+			</button>
+			
+			</button>
+			<h3 class="fs-title">View Table</h3>
+			<div class="table-responsive">
+				<table class="table table-hover table-sm" id="tblstudent">
+				<thead>
+					<tr>
+						<th>Index</th>
+						<th>Name</th>
+						<th>Mobile</th>
+						<th>BIT Registration No</th>
+						<th>Delete</th>
+					</tr>
+					<tr>
+						<th>--</th>
+						<th><input type="text" id="txtRealSearchName" onKeyUp="filterTable(this.value);"/></th>
+						<th><input type="text" id="txtRealSearchMobile" onKeyUp="filterTable(this.value);"/></th>
+						<th><input type="text" id="txtRealSearchbitreg" onKeyUp="filterTable(this.value);"/></th>
+						<th>---</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				</table>
+			</div>
+			<input type="button" class="btn btn-info action-button" value="Load Records for Real Search" id="btnRealSearch" />  
+			<input type="button" class="btn btn-info action-button" value="Clear Real Search" id="btnRealSearchClear" />
+
+			<button type="button" style="float: left; position: absolute; bottom: 1px; left:4px;" class="btn btn-primary previous action-button">
+				<span class="glyphicon glyphicon-chevron-left"></span>Back
+			</button>
+
+			
+			</fieldset>
+	
+	
+
+
+		
+</div>
+
+ <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js'></script>
+
+   <script type="text/javascript" src="index.js"></script>
+</body>
+</html>
